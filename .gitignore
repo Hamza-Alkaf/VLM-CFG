@@ -1,0 +1,21 @@
+# environment and secrets
+.venv/
+.env
+# caches and outputs
+__pycache__/
+*.py[cod]
+*.egg-info/
+.cache/
+.pytest_cache/
+.ruff_cache/
+outputs/
+logs/
+data/build/
+*.log
+
+# OCRBench v2 spotting scorer writes its gt/submit zips next to itself
+vlmcfg/tasks/ocrbench_v2/spotting_eval/gt*
+vlmcfg/tasks/ocrbench_v2/spotting_eval/submit*
+vlmcfg/tasks/ocrbench_v2/spotting_eval/results*
+# ...and its text-spotting scorer writes scratch files under the launch directory
+/lmms_eval/

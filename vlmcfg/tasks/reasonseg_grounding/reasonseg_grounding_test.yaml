@@ -1,0 +1,7 @@
+task: "reasonseg_grounding_test"
+test_split: test
+dataset_kwargs:
+  data_files:
+    test: !datapath reasonseg_gseval_grounding/reasonseg_grounding_test.parquet
+  token: True
+include: _default_template_yaml

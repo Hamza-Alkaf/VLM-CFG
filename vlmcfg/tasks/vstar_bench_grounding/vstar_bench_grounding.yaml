@@ -1,0 +1,43 @@
+dataset_path: parquet
+dataset_kwargs:
+  data_files:
+    test: !datapath vstar_bench_grounding/vstar_bench_grounding.parquet
+  token: True
+task: "vstar_bench_grounding"
+test_split: test
+output_type: generate_until
+doc_to_visual: !function vstar_bench_utils.vstar_bench_doc_to_visual
+doc_to_text: !function vstar_bench_utils.vstar_bench_doc_to_text
+doc_to_target: !function vstar_bench_utils.vstar_bench_doc_to_target
+
+lmms_eval_specific_kwargs:
+  default:
+    pre_prompt: ""
+    post_prompt: "\nAnswer with the option's letter from the given choices directly."
+  qwen3_5:
+    pre_prompt: ""
+    post_prompt: "\nAnswer with the option's letter from the given choices directly with a single letter only."
+
+generation_kwargs:
+  max_new_tokens: 128
+  temperature: 0
+  do_sample: False
+
+filter_list:
+  - name: "flexible-extract"
+    filter:
+      - function: !function vstar_bench_utils.MultiChoiceRegexFilter
+        group_select: 0
+        ignore_case: true
+        ignore_punctuation: true
+        regex_pattern: "([A-Z])\\."
+
+metric_list:
+  - metric: exact_match
+    aggregation: mean
+    higher_is_better: true
+    ignore_case: true
+    ignore_punctuation: true
+
+metadata:
+  - version: 0.0

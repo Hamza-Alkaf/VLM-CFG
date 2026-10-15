@@ -1,0 +1,11 @@
+# mathverse_mcq_text_lite_cot -- reasoning first. Long-form arm: this is where a generated prefix exists at all.
+task: "mathverse_mcq_text_lite_cot"
+test_split: test
+dataset_kwargs:
+  data_files:
+    test: !datapath mathverse/mathverse_mcq_text_lite.parquet
+include: _default_template_yaml
+lmms_eval_specific_kwargs:
+  default:
+    query_type: "query_cot"
+    format_prompt: "\nThink step by step, then give your final answer on a new line in exactly this format:\nReasoning: <your reasoning>\nAnswer: <the option letter>"

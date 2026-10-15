@@ -1,0 +1,47 @@
+# Shared by the ReasonSeg and GSEval grounding shards. Each concrete task sets only `task`,
+# `dataset_kwargs.data_files` and `test_split`.
+#
+# No process_docs here: unlike the refcoco shards, these carry one row per image already, so
+# there is nothing to de-duplicate.
+dataset_path: parquet
+output_type: generate_until
+doc_to_visual: !function utils.doc_to_visual
+doc_to_text: !function utils.doc_to_text
+doc_to_target: !function utils.doc_to_target
+
+lmms_eval_specific_kwargs:
+  default:
+    pre_prompt: ""
+    post_prompt: ""
+
+generation_kwargs:
+  # A box is ~40 tokens bare and ~60 as Qwen's {"bbox_2d": ..., "label": ...} JSON. ReasonSeg's
+  # queries are reasoning questions, so leave room for a short preamble before the box.
+  max_new_tokens: 128
+  temperature: 0
+  do_sample: False
+
+process_results: !function utils.process_results
+
+metric_list:
+  - metric: IoU
+    aggregation: !function utils.iou
+    higher_is_better: true
+  - metric: IoU@0.5
+    aggregation: !function utils.iou_50
+    higher_is_better: true
+  - metric: IoU@0.25
+    aggregation: !function utils.iou_25
+    higher_is_better: true
+  - metric: IoU@0.75
+    aggregation: !function utils.iou_75
+    higher_is_better: true
+  - metric: IoU@0.9
+    aggregation: !function utils.iou_90
+    higher_is_better: true
+  - metric: Center_ACC
+    aggregation: !function utils.center_acc
+    higher_is_better: true
+
+metadata:
+  - version: 0.0

@@ -1,0 +1,7 @@
+task: "reasonseg_grounding_val"
+test_split: val
+dataset_kwargs:
+  data_files:
+    val: !datapath reasonseg_gseval_grounding/reasonseg_grounding_val.parquet
+  token: True
+include: _default_template_yaml

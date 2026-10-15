@@ -1,0 +1,31 @@
+dataset_path: parquet
+dataset_kwargs:
+  data_files:
+    validation: !datapath refchartqa/refchartqa_val.parquet
+  token: True
+task: "refchartqa"
+test_split: validation
+output_type: generate_until
+doc_to_visual: !function refchartqa_utils.refchartqa_doc_to_visual
+doc_to_text: !function refchartqa_utils.refchartqa_doc_to_text
+doc_to_target: !function refchartqa_utils.refchartqa_doc_to_target
+
+lmms_eval_specific_kwargs:
+  default:
+    pre_prompt: ""
+    post_prompt: "\nAnswer the question using a single word or phrase."
+
+generation_kwargs:
+  max_new_tokens: 32
+  temperature: 0
+  do_sample: False
+
+process_results: !function refchartqa_utils.refchartqa_process_results
+
+metric_list:
+  - metric: relaxed_overall
+    aggregation: !function refchartqa_utils.refchartqa_aggregate_mean
+    higher_is_better: true
+
+metadata:
+  - version: 0.0

@@ -1,0 +1,48 @@
+include: _default_template_yaml
+task: "phd_sub10_ccs_rationale"
+# Rationale arm of phd_sub10_ccs: same 1,506 rows (all 753 counter-common-sense records x
+# yes/no, not subsampled), but the model states a one-sentence reason (<= 30 words) before
+# its yes/no answer. parse_answer's first-token rule would read "Yes, the ..." reasoning as the
+# verdict, so this arm scores the DECLARED answer (phd_utils.phd_process_results_rationale).
+# `include` merges top-level keys only, so the prompt, generation_kwargs and metric_list are
+# restated in full. Deliberately not added to the phd_sub10 group.
+process_docs: !function phd_utils.filter_ccs
+
+lmms_eval_specific_kwargs:
+  default:
+    pre_prompt: ""
+    post_prompt: "\nFirst explain your reasoning in one short sentence (at most 30 words), then give your final answer on a new line, in exactly this format:\nReasoning: <one sentence, at most 30 words>\nAnswer: <yes or no>"
+
+generation_kwargs:
+  # ~30 words of reasoning plus the answer line is ~50-60 tokens. 256 leaves 4x headroom, so
+  # a response that hits the cap has ignored the budget -- visible as phd_invalid_rate.
+  max_new_tokens: 256
+  temperature: 0
+  do_sample: False
+
+process_results: !function phd_utils.phd_process_results_rationale
+
+# phd_index / phd_accuracy are not interpretable on their own: an unparsed response scores 0,
+# so read them with phd_invalid_rate (the no-answer rate) and gen_words.
+metric_list:
+  - metric: phd_index
+    aggregation: !function phd_utils.phd_aggregate_index
+    higher_is_better: true
+  - metric: phd_yes_recall
+    aggregation: !function phd_utils.phd_aggregate_yes_recall
+    higher_is_better: true
+  - metric: phd_no_recall
+    aggregation: !function phd_utils.phd_aggregate_no_recall
+    higher_is_better: true
+  - metric: phd_accuracy
+    aggregation: !function phd_utils.phd_aggregate_accuracy
+    higher_is_better: true
+  - metric: phd_invalid_rate
+    aggregation: !function phd_utils.phd_aggregate_invalid_rate
+    higher_is_better: false
+  - metric: parse_rate_strict
+    aggregation: mean
+    higher_is_better: true
+  - metric: gen_words
+    aggregation: mean
+    higher_is_better: false

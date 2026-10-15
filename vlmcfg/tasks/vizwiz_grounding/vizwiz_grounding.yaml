@@ -1,0 +1,38 @@
+dataset_path: parquet
+dataset_kwargs:
+  data_files:
+    val: !datapath vizwiz_grounding_val/vizwiz_grounding_val.parquet
+  token: True
+task: "vizwiz_grounding_val"
+test_split: val
+output_type: generate_until
+# Derives a `segmentation` column (COCO RLE) from the raw `mask` image column, so
+# `--cfg_mode seg` (which reads `--seg_field`, default "segmentation") has a usable field.
+process_docs: !function vizwiz_utils.vizwiz_grounding_process_docs
+doc_to_visual: !function vizwiz_utils.vizwiz_grounding_doc_to_visual
+doc_to_text: !function vizwiz_utils.vizwiz_grounding_doc_to_text
+doc_to_target: !function vizwiz_utils.vizwiz_grounding_doc_to_target
+
+lmms_eval_specific_kwargs:
+  default:
+    pre_prompt: ""
+    # Matches vizwiz_vqa's `_default_template_vqa_yaml`: "answer the question directly" leaves
+    # the model free to explain itself (observed rambling into 32-token truncated sentences on
+    # this task's negative-image streams); "single word or phrase" is the stronger, validated
+    # instruction that keeps VQA soft-accuracy scoring meaningful.
+    post_prompt: "\nWhen the provided information is insufficient, respond with 'Unanswerable'.\nAnswer the question using a single word or phrase."
+
+generation_kwargs:
+  max_new_tokens: 32
+  temperature: 0
+  do_sample: False
+
+process_results: !function vizwiz_utils.vizwiz_grounding_process_results
+
+metric_list:
+  - metric: vqa_accuracy
+    aggregation: !function vizwiz_utils.vizwiz_grounding_aggregate_accuracy
+    higher_is_better: true
+
+metadata:
+  - version: 0.0

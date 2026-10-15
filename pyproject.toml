@@ -1,0 +1,123 @@
+[project]
+name = "vlmcfg"
+version = "0.1.0"
+description = "Classifier-free guidance for vision-language models (VLM-CFG), as an lmms-eval plugin."
+readme = "README.md"
+license = { text = "MIT" }
+authors = [
+    { name = "Hamza Alkaf", email = "hthek19@gmail.com" },
+    { name = "Eslam Bakr", email = "islam.bakr.2017@gmail.com" },
+]
+requires-python = ">=3.11,<3.12"
+# Pinned to the versions every reported number was produced with. Guidance compares two
+# forward passes in bf16/fp16, so a different torch/transformers build can flip near-tie
+# tokens; keep these pins to reproduce the paper exactly.
+dependencies = [
+    # upstream lmms-eval, the exact commit the evaluation harness was taken from
+    "lmms_eval @ git+https://github.com/EvolvingLMMs-Lab/lmms-eval@654e1b0f64ee79567b25d5c74212c60e5330a8fb",
+    "torch==2.7.1",
+    "torchvision==0.22.1",
+    "transformers==4.57.1",
+    "accelerate==1.14.0",
+    "qwen-vl-utils==0.0.14",
+    "datasets==5.0.1",
+    "huggingface-hub==0.36.2",
+    "tokenizers==0.22.2",
+    "safetensors==0.8.0",
+    "numpy==1.26.4",
+    "pillow==12.3.0",
+    "pandas==2.3.3",
+    "pyarrow==25.0.0",
+    "pyyaml==6.0.3",
+    "tqdm==4.70.0",
+    "loguru==0.7.3",
+    "einops==0.8.2",
+    "timm==1.0.28",
+    "peft==0.20.0",
+    "scipy==1.17.1",
+    "opencv-python-headless==4.11.0.86",
+    "decord==0.6.0",
+    "av==15.1.0",
+    "sentencepiece==0.2.2",
+    "protobuf==5.29.6",
+    "tiktoken==0.13.0",
+    # task scorers
+    "pycocotools==2.0.11",
+    "pycocoevalcap==1.2",
+    "nltk==3.10.2",
+    "apted==1.0.3",
+    "zss==1.2.0",
+    "distance==0.1.3",
+    "levenshtein==0.27.5",
+    "editdistance==0.8.1",
+    "rapidfuzz==3.14.6",
+    "lxml==6.1.1",
+    "jieba==0.42.1",
+]
+
+[project.optional-dependencies]
+# Scorers for the long-form analysis benchmarks (AMBER, DetailCaps).
+longform = [
+    "spacy==3.8.11",
+    "en_core_web_lg @ https://github.com/explosion/spacy-models/releases/download/en_core_web_lg-3.8.0/en_core_web_lg-3.8.0-py3-none-any.whl",
+    "capture_metric==0.1.13",
+]
+dev = [
+    "pytest",
+    "ruff",
+    "pyright",
+]
+
+[project.scripts]
+vlmcfg-eval = "vlmcfg.cli:main"
+
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["vlmcfg*"]
+
+[tool.setuptools.package-data]
+"vlmcfg.tasks" = ["**/*.yaml"]
+
+# CUDA 11.8 wheels run on every GPU from V100 (sm_70) to H100 (sm_90). For newer GPUs,
+# point these at a newer CUDA index, knowing it can change near-tie tokens.
+[tool.uv.sources]
+torch = { index = "pytorch-cu118" }
+torchvision = { index = "pytorch-cu118" }
+
+[[tool.uv.index]]
+name = "pytorch-cu118"
+url = "https://download.pytorch.org/whl/cu118"
+explicit = true
+
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+# Kept byte-identical to upstream lmms-eval (and the OCRBench v2 scorer it vendors).
+extend-exclude = [
+    "vlmcfg/tasks/ocrbench_v2",
+    "vlmcfg/tasks/blink/utils.py",
+    "vlmcfg/tasks/mme_realworld/utils.py",
+    "vlmcfg/tasks/mmstar/utils.py",
+    "vlmcfg/tasks/ok_vqa/utils.py",
+    "vlmcfg/tasks/salbench/utils.py",
+]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+# zip(strict=True) would raise where the frozen behaviour silently truncates.
+ignore = ["B905"]
+
+[tool.pyright]
+include = ["vlmcfg"]
+exclude = [
+    "vlmcfg/tasks/ocrbench_v2",
+    "vlmcfg/tasks/blink/utils.py",
+    "vlmcfg/tasks/mme_realworld/utils.py",
+    "vlmcfg/tasks/mmstar/utils.py",
+    "vlmcfg/tasks/ok_vqa/utils.py",
+    "vlmcfg/tasks/salbench/utils.py",
+]
+pythonVersion = "3.11"

@@ -1,0 +1,36 @@
+"""lmms-eval plugin entry point: model name -> class name in
+``vlmcfg.models.<name>``."""
+
+AVAILABLE_MODELS: dict[str, str] = {
+    "qwen2_5_vl_vlmcfg": "Qwen25VLVLMCFG",
+    "qwen2_5_vl_base": "Qwen25VLBase",
+    "qwen3_vl_vlmcfg": "Qwen3VLVLMCFG",
+    "qwen3_vl_base": "Qwen3VLBase",
+    "internvl3_5_hf_vlmcfg": "InternVL35HFVLMCFG",
+    "internvl3_5_hf_base": "InternVL35HFBase",
+    "molmo2_vlmcfg": "Molmo2VLMCFG",
+    "molmo2_base": "Molmo2Base",
+    # baselines
+    "qwen2_5_vl_vcd": "Qwen25VLVCD",
+    "qwen3_vl_vcd": "Qwen3VLVCD",
+    "internvl3_5_hf_vcd": "InternVL35HFVCD",
+    "molmo2_vcd": "Molmo2VCD",
+    "qwen2_5_vl_layercd": "Qwen25VLLayerCD",
+    "qwen3_vl_layercd": "Qwen3VLLayerCD",
+    "internvl3_5_hf_layercd": "InternVL35HFLayerCD",
+    "qwen2_5_vl_sid": "Qwen25VLSID",
+    "qwen3_vl_sid": "Qwen3VLSID",
+    "internvl3_5_hf_sid": "InternVL35HFSID",
+    "molmo2_sid": "Molmo2SID",
+    "qwen2_5_vl_acg": "Qwen25VLACG",
+    "qwen3_vl_acg": "Qwen3VLACG",
+    "internvl3_5_hf_acg": "InternVL35HFACG",
+    "qwen2_5_vl_m3id": "Qwen25VLM3ID",
+    "qwen3_vl_m3id": "Qwen3VLM3ID",
+    "internvl3_5_hf_m3id": "InternVL35HFM3ID",
+    "molmo2_m3id": "Molmo2M3ID",
+    "qwen2_5_vl_pai": "Qwen25VLPAI",
+    "qwen3_vl_pai": "Qwen3VLPAI",
+    "internvl3_5_hf_pai": "InternVL35HFPAI",
+    "molmo2_pai": "Molmo2PAI",
+}

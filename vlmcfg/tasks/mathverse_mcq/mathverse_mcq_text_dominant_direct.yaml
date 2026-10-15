@@ -1,0 +1,11 @@
+# mathverse_mcq_text_dominant_direct -- no reasoning. Short-answer arm: isolates the CFG effect without CoT.
+task: "mathverse_mcq_text_dominant_direct"
+test_split: test
+dataset_kwargs:
+  data_files:
+    test: !datapath mathverse/mathverse_mcq_text_dominant.parquet
+include: _default_template_yaml
+lmms_eval_specific_kwargs:
+  default:
+    query_type: "query_wo"
+    format_prompt: "\nGive your answer on a single line in exactly this format:\nAnswer: <the option letter>"

@@ -1,0 +1,46 @@
+# DetailCaps-500 -- a FROZEN, source-stratified 500-image subset of DetailCaps-4870.
+#
+# Why a frozen subset and not `--limit 500`: every arm must see the SAME documents in the
+# SAME order, or a per-item comparison degrades to an unpaired one. The subset is built
+# once by data/prepare_detailcaps_500.py (seed 0, largest-remainder allocation across the
+# seven image sources).
+# Scoring needs the `longform` extra (CAPTURE).
+dataset_path: parquet
+dataset_kwargs:
+  data_files:
+    test: !datapath detailcaps/detailcaps_500.parquet
+task: "detailcaps_500"
+test_split: test
+output_type: generate_until
+
+doc_to_visual: !function utils.detailcaps_500_doc_to_visual
+doc_to_text: !function utils.detailcaps_500_doc_to_text
+doc_to_target: !function utils.detailcaps_500_doc_to_target
+
+lmms_eval_specific_kwargs:
+  default:
+    prompt: "Describe this image in detail."
+
+generation_kwargs:
+  max_new_tokens: 512
+  temperature: 0
+  top_p: 0
+  num_beams: 1
+  do_sample: false
+
+process_results: !function utils.detailcaps_500_process_result
+
+# CAPTURE: a soft F1 over scene-graph objects/attributes/relations, so one image
+# contributes tens of GRADED sub-decisions instead of one binary. gen_words is the length
+# covariate: guidance moves termination, and a caption metric read without it cannot
+# separate content gains from length artifacts.
+metric_list:
+  - metric: detailcaps_CAPTURE
+    aggregation: !function utils.detailcaps_500_capture
+    higher_is_better: true
+  - metric: gen_words
+    aggregation: mean
+    higher_is_better: true
+
+metadata:
+  version: '1.0'

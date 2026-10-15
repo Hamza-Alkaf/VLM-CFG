@@ -1,0 +1,59 @@
+# AMBER -- generative split (1,004 images), the LLM-free hallucination benchmark.
+#
+# Four rule-based metrics, no judge anywhere:
+#   CHAIR  (lower better)  fraction of mentioned objects that are NOT in the image
+#   Cover  (higher better) fraction of annotated objects that WERE mentioned
+#   Hal    (lower better)  fraction of responses containing at least one hallucination
+#   Cog    (lower better)  fraction of the per-image "plausible but absent" decoys mentioned
+#
+# Cover is the omission/length control sitting in the same table, so a CHAIR "improvement"
+# bought by shorter captions is visible immediately instead of being reported as a gain.
+# Scoring needs the `longform` extra (spaCy en_core_web_lg).
+dataset_path: parquet
+dataset_kwargs:
+  data_files:
+    test: !datapath amber/amber_generative.parquet
+task: "amber_generative"
+test_split: test
+output_type: generate_until
+
+doc_to_visual: !function utils.amber_doc_to_visual
+doc_to_text: !function utils.amber_doc_to_text
+doc_to_target: !function utils.amber_doc_to_target
+
+lmms_eval_specific_kwargs:
+  default:
+    # AMBER ships its own prompt in data/query/query_generative.json ("Describe this
+    # image."). It is used verbatim -- changing it would break comparability with every
+    # published AMBER number.
+    pre_prompt: ""
+    post_prompt: ""
+
+generation_kwargs:
+  max_new_tokens: 512
+  temperature: 0
+  top_p: 0
+  num_beams: 1
+  do_sample: false
+
+process_results: !function utils.amber_process_results
+
+metric_list:
+  - metric: CHAIR
+    aggregation: !function utils.amber_chair
+    higher_is_better: false
+  - metric: Cover
+    aggregation: !function utils.amber_cover
+    higher_is_better: true
+  - metric: Hal
+    aggregation: !function utils.amber_hal
+    higher_is_better: false
+  - metric: Cog
+    aggregation: !function utils.amber_cog
+    higher_is_better: false
+  - metric: gen_words
+    aggregation: mean
+    higher_is_better: true
+
+metadata:
+  version: '1.0'

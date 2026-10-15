@@ -1,0 +1,44 @@
+# Shared by all twelve mathverse_mcq tasks. Each concrete file sets only `task`,
+# `dataset_kwargs.data_files`, `test_split` and the two lmms_eval_specific_kwargs that
+# choose the reasoning arm.
+dataset_path: parquet
+output_type: generate_until
+
+doc_to_visual: !function utils.mathverse_mcq_doc_to_visual
+doc_to_text: !function utils.mathverse_mcq_doc_to_text
+doc_to_target: !function utils.mathverse_mcq_doc_to_target
+
+generation_kwargs:
+  max_new_tokens: 1024
+  temperature: 0
+  top_p: 0
+  num_beams: 1
+  do_sample: false
+
+process_results: !function utils.mathverse_mcq_process_results
+
+# acc is the headline, but it is NOT interpretable on its own: a parse failure scores 0, so
+# a formatting change shows up as an accuracy change. Read acc, acc_parsed and
+# parse_rate_* together, always. gen_words is the length covariate.
+metric_list:
+  - metric: acc
+    aggregation: mean
+    higher_is_better: true
+  - metric: acc_parsed
+    aggregation: !function utils.mathverse_mcq_acc_parsed
+    higher_is_better: true
+  - metric: parse_rate_strict
+    aggregation: mean
+    higher_is_better: true
+  - metric: parse_rate_any
+    aggregation: mean
+    higher_is_better: true
+  - metric: no_answer_rate
+    aggregation: mean
+    higher_is_better: false
+  - metric: gen_words
+    aggregation: mean
+    higher_is_better: true
+
+metadata:
+  version: '1.0'

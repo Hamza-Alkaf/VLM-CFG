@@ -1,0 +1,5 @@
+include: _default_template_yaml
+task: "phd_sub10_ccs"
+# NOT subsampled: all 753 counter-common-sense records x 2 = 1,506 rows. The sub10
+# in the name is the parquet's, whose other modes are 10% subsamples.
+process_docs: !function phd_utils.filter_ccs
